@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rulimeri - Cápsulas olfativas para botellas de agua.">
+  <title>Rulimeri | El sabor que hace que el agua cobre vida</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="header" id="inicio">
+    <a href="#inicio" class="logo" aria-label="Rulimeri inicio">
+      <img src="logo-rulimeri.png" width="60" alt="Logo Rulimeri" onerror="this.style.display='none'">
+      <span>Rulimeri</span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+
+    <nav class="nav" id="mainNav">
+      <a href="#inicio">Inicio</a>
+      <a href="#productos">Productos</a>
+      <a href="#como-funciona">¿Cómo funciona?</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="favoritesBtn" title="Favoritos" aria-label="Favoritos">♡ <span id="favoritesCount">0</span></button>
+      <button class="icon-btn" id="cartBtn" title="Carrito" aria-label="Carrito">🛒 <span id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <span class="eyebrow">💧 Una nueva forma de disfrutar el agua</span>
+        <h1>El sabor que hace que el <span>agua cobre vida.</span></h1>
+        <p>
+          Descubrí nuestras cápsulas olfativas Rulimeri y disfrutá una experiencia
+          frutal mientras tomás agua.
+        </p>
+        <div class="hero-buttons">
+          <a href="#productos" class="btn btn-primary">Comprar ahora</a>
+          <a href="#como-funciona" class="btn btn-secondary">Conocé Rulimeri</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="hero-rulimeri.jpg" alt="Cápsulas Rulimeri" onerror="this.src='logo-rulimeri.png'">
+      </div>
+    </section>
+
+    <!-- ================= BENEFICIOS ================= -->
+    <section class="benefits section">
+      <div class="section-heading">
+        <span class="eyebrow">Rulimeri</span>
+        <h2>Una experiencia diferente</h2>
+        <p>Diseñamos nuestras cápsulas para transformar tu momento de hidratación.</p>
+      </div>
+
+      <div class="benefit-grid">
+        <article class="benefit-card">
+          <div class="benefit-icon">🍓</div>
+          <h3>Experiencia frutal</h3>
+          <p>Elegí entre distintos aromas inspirados en frutas.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">💧</div>
+          <h3>Agua como protagonista</h3>
+          <p>La idea es acompañar tu hidratación sin cambiar el agua.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">✨</div>
+          <h3>Fácil de usar</h3>
+          <p>Colocá la cápsula en la botella y disfrutá la experiencia.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">🌱</div>
+          <h3>Para todos los días</h3>
+          <p>Una propuesta práctica para llevar al cole, gym o trabajo.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= PRODUCTOS ================= -->
+    <section class="products-section section" id="productos">
+      <div class="section-heading">
+        <span class="eyebrow">Tienda Rulimeri</span>
+        <h2>Elegí tu aroma favorito</h2>
+        <p>Encontrá tu cápsula y agregala al carrito.</p>
+      </div>
+
+      <div class="shop-tools">
+        <div class="search-box">
+          <span>🔎</span>
+          <input type="search" id="searchInput" placeholder="Buscar un aroma..." aria-label="Buscar productos">
+        </div>
+        <select id="categoryFilter" aria-label="Filtrar por categoría">
+          <option value="all">Todos los aromas</option>
+          <option value="citrus">Cítricos</option>
+          <option value="berries">Frutos rojos</option>
+          <option value="frutal">Frutales</option>
+          <option value="bottle">Botellas y combos</option>
+        </select>
+        <select id="sortProducts" aria-label="Ordenar productos">
+          <option value="default">Ordenar</option>
+          <option value="price-low">Precio: menor a mayor</option>
+          <option value="price-high">Precio: mayor a menor</option>
+          <option value="name">Nombre A-Z</option>
+        </select>
+      </div>
+
+      <div class="products-grid" id="productsGrid"></div>
+      <p class="empty-state" id="productsEmpty" hidden>No encontramos productos con esa búsqueda.</p>
+    </section>
+
+    <!-- ================= COMO FUNCIONA ================= -->
+    <section class="how-section section" id="como-funciona">
+      <div class="section-heading">
+        <span class="eyebrow">Simple y rápido</span>
+        <h2>¿Cómo funciona?</h2>
+      </div>
+
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-number">01</span>
+          <h3>Elegí tu cápsula</h3>
+          <p>Seleccioná el aroma que más te guste.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <h3>Colocala en tu botella</h3>
+          <p>Usá la cápsula según las indicaciones de tu producto.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">03</span>
+          <h3>Disfrutá la experiencia</h3>
+          <p>Respirá el aroma y disfrutá tu momento de hidratación.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= NOSOTROS ================= -->
+    <section class="about-section section" id="nosotros">
+      <div class="about-content">
+        <span class="eyebrow">Sobre nosotros</span>
+        <h2>Conocé Rulimeri</h2>
+        <p>
+          Rulimeri nace como una propuesta innovadora para hacer más entretenida
+          la hidratación diaria. Nuestra idea combina agua y aromas frutales para
+          crear una experiencia distinta, práctica y fácil de llevar.
+        </p>
+        <p>
+          Buscamos ofrecer una alternativa creativa para quienes quieren disfrutar
+          de nuevos aromas sin dejar de lado el agua como bebida principal.
+        </p>
+      </div>
+      <div class="about-card">
+        <strong>Rulimeri</strong>
+        <span>💧🍓🍊🍋🍎</span>
+        <p>El sabor que hace que el agua cobre vida.</p>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="faq-section section">
+      <div class="section-heading">
+        <span class="eyebrow">Preguntas frecuentes</span>
+        <h2>¿Tenés alguna duda?</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>¿Qué es una cápsula Rulimeri?</summary>
+          <p>Es una cápsula diseñada para aportar una experiencia aromática frutal al momento de tomar agua.</p>
+        </details>
+        <details>
+          <summary>¿El agua cambia de color?</summary>
+          <p>No. La propuesta de Rulimeri está centrada en la experiencia aromática.</p>
+        </details>
+        <details>
+          <summary>¿Puedo elegir diferentes aromas?</summary>
+          <p>Sí. Podés comprar cada aroma por separado o combinar varios en tu pedido.</p>
+        </details>
+        <details>
+          <summary>¿Cómo hago un pedido?</summary>
+          <p>Agregá los productos al carrito, revisá las cantidades y completá tus datos en el checkout.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= CONTACTO ================= -->
+    <section class="contact-section section" id="contacto">
+      <div class="section-heading">
+        <span class="eyebrow">Estamos para ayudarte</span>
+        <h2>Contactanos</h2>
+        <p>Dejanos tu consulta y te responderemos.</p>
+      </div>
+
+      <form id="contactForm" class="contact-form">
+        <div class="form-row">
+          <label>
+            Nombre
+            <input type="text" id="contactName" required placeholder="Tu nombre">
+          </label>
+          <label>
+            Email
+            <input type="email" id="contactEmail" required placeholder="tucorreo@email.com">
+          </label>
+        </div>
+        <label>
+          Mensaje
+          <textarea id="contactMessage" rows="5" required placeholder="Escribí tu consulta..."></textarea>
+        </label>
+        <button class="btn btn-primary" type="submit">Enviar consulta</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div>
+      <h3>Rulimeri</h3>
+      <p>El sabor que hace que el agua cobre vida. 💧</p>
+    </div>
+    <div>
+      <h4>Enlaces</h4>
+      <a href="#productos">Productos</a>
+      <a href="#como-funciona">¿Cómo funciona?</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+    <div>
+      <h4>Redes</h4>
+      <p><a href="#" aria-label="Instagram">Instagram: Rulimeri.srl</a></p>
+     <p><a href="#" aria-label="TikTok">TikTok:Rulimeri srl</a></p>
+      <p><a href="#" aria-label="Facebook">Facebook:Rulimeri srl</a></p>
+    </div>
+    <div class="footer-bottom">
+      <p>© <span id="year"></span> Rulimeri SRL. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL PRODUCTO ================= -->
+  <div class="modal" id="productModal" aria-hidden="true">
+    <div class="modal-overlay" data-close="productModal"></div>
+    <div class="modal-content">
+      <button class="modal-close" data-close="productModal" aria-label="Cerrar">×</button>
+      <div id="productModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ================= CARRITO ================= -->
+  <aside class="drawer" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-overlay" data-close="cartDrawer"></div>
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h2>Tu carrito 🛒</h2>
+        <button class="modal-close" data-close="cartDrawer">×</button>
+      </div>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="cart-summary">
+        <div><span>Subtotal</span><strong id="cartSubtotal">$0</strong></div>
+        <div><span>Envío</span><strong id="cartShipping">$0</strong></div>
+        <div class="total"><span>Total</span><strong id="cartTotal">$0</strong></div>
+        <button class="btn btn-primary full-width" id="checkoutBtn">Finalizar compra</button>
+        <button class="btn btn-secondary full-width" id="clearCartBtn">Vaciar carrito</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= FAVORITOS ================= -->
+  <aside class="drawer" id="favoritesDrawer" aria-hidden="true">
+    <div class="drawer-overlay" data-close="favoritesDrawer"></div>
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h2>Mis favoritos ♡</h2>
+        <button class="modal-close" data-close="favoritesDrawer">×</button>
+      </div>
+      <div id="favoritesItems" class="favorites-items"></div>
+    </div>
+  </aside>
+
+  <!-- ================= CHECKOUT ================= -->
+  <div class="modal" id="checkoutModal" aria-hidden="true">
+    <div class="modal-overlay" data-close="checkoutModal"></div>
+    <div class="modal-content checkout-content">
+      <button class="modal-close" data-close="checkoutModal">×</button>
+      <div class="section-heading">
+        <span class="eyebrow">Rulimeri</span>
+        <h2>Finalizar pedido</h2>
+      </div>
+
+      <form id="checkoutForm" class="checkout-form">
+        <div class="form-row">
+          <label>
+            Nombre y apellido
+            <input id="customerName" required>
+          </label>
+          <label>
+            Teléfono
+            <input id="customerPhone" type="tel" required>
+          </label>
+        </div>
+
+        <label>
+          Email
+          <input id="customerEmail" type="email" required>
+        </label>
+
+        <label>
+          Dirección
+          <input id="customerAddress" required placeholder="Calle y número">
+        </label>
+
+        <div class="form-row">
+          <label>
+            Ciudad
+            <input id="customerCity" value="Salta" required>
+          </label>
+          <label>
+            Código postal
+            <input id="customerZip" required>
+          </label>
+        </div>
+
+        <label>
+          Medio de pago
+          <select id="paymentMethod" required>
+            <option value="">Seleccionar</option>
+            <option value="mercadopago">Mercado Pago</option>
+            <option value="transferencia">Transferencia bancaria</option>
+            <option value="efectivo">Efectivo</option>
+          </select>
+        </label>
+
+        <label>
+          Notas del pedido (opcional)
+          <textarea id="orderNotes" rows="3" placeholder="Ej.: entregar por la tarde"></textarea>
+        </label>
+
+        <div class="checkout-total">
+          Total del pedido: <strong id="checkoutTotal">$0</strong>
+        </div>
+
+        <button class="btn btn-primary full-width" type="submit">Confirmar pedido</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= TOAST ================= -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <button class="back-to-top" id="backToTop" aria-label="Volver arriba">↑</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
