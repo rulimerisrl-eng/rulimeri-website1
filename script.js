@@ -8,7 +8,7 @@ const products = [
     name: "Naranja",
     flavor: "Cítrico",
     category: "citrus",
-    price: 3500,
+    price: 3800,
     image: "naranja.jpg",
     description: "Aroma fresco y cítrico de naranja para una experiencia vibrante."
   },
@@ -17,7 +17,7 @@ const products = [
     name: "Limón",
     flavor: "Cítrico",
     category: "citrus",
-    price: 3500,
+    price: 3800,
     image: "limon.jpg",
     description: "Aroma de limón, fresco y refrescante para acompañar tu hidratación."
   },
@@ -53,7 +53,7 @@ const products = [
     name: "Arándano",
     flavor: "Frutos rojos",
     category: "berries",
-    price: 4000,
+    price: 3800,
     image: "arandano.jpg",
     description: "Aroma intenso de arándano con un perfil frutal."
   },
@@ -71,7 +71,7 @@ const products = [
     name: "Botella Rulimeri 500 ml + cápsula",
     flavor: "Combo",
     category: "bottle",
-    price: 5000,
+    price: 10000,
     image: "botella-500ml.jpg",
     description: "Botella reutilizable de 500 ml con una cápsula Rulimeri a elección. El precio se calcula según el aroma elegido."
   }
@@ -194,14 +194,14 @@ function addToCart(id, quantity = 1, selectedCapsuleId = null) {
   showToast(`${product.name} agregado al carrito 🛒`);
 }
 
-function changeQuantity(id, amount) {
-  const item = cart.find(item => item.id === id);
+function changeQuantity(id, amount, key = null) {
+  const item = cart.find(item => key ? item.key === key : item.id === id);
   if (!item) return;
 
   item.quantity += amount;
 
   if (item.quantity <= 0) {
-    cart = cart.filter(item => item.id !== id);
+    cart = cart.filter(item => key ? item.key !== key : item.id !== id);
   }
 
   saveState();
@@ -283,10 +283,10 @@ function renderCart() {
           <strong>${formatPrice(item.price)}</strong>
 
           <div class="quantity-controls">
-            <button data-cart-action="decrease" data-id="${item.id}">−</button>
+            <button data-cart-action="decrease" data-id="${item.id}" data-key="${item.key}">−</button>
             <span>${item.quantity}</span>
-            <button data-cart-action="increase" data-id="${item.id}">+</button>
-            <button class="remove-item" data-cart-action="remove" data-id="${item.id}" title="Eliminar">🗑</button>
+            <button data-cart-action="increase" data-id="${item.id}" data-key="${item.key}">+</button>
+            <button class="remove-item" data-cart-action="remove" data-id="${item.id}" data-key="${item.key}" title="Eliminar">🗑</button>
           </div>
         </div>
       </div>
@@ -587,9 +587,13 @@ document.addEventListener("click", event => {
     const id = Number(cartActionElement.dataset.id);
     const action = cartActionElement.dataset.cartAction;
 
-    if (action === "increase") changeQuantity(id, 1);
-    if (action === "decrease") changeQuantity(id, -1);
-    if (action === "remove") removeFromCart(id);
+    const key = cartActionElement.dataset.key || null;
+    if (action === "increase") changeQuantity(id, 1, key);
+    if (action === "decrease") changeQuantity(id, -1, key);
+    if (action === "remove") {
+      if (key) { cart = cart.filter(item => item.key !== key); saveState(); renderCart(); showToast("Producto eliminado del carrito"); }
+      else removeFromCart(id);
+    }
   }
 
   const closeElement = event.target.closest("[data-close]");
