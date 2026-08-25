@@ -1,652 +1,119 @@
-/* ==========================================================
-   RULIMERI - JAVASCRIPT PRINCIPAL
-   ========================================================== */
 
-const products = [
-  {
-    id: 1,
-    name: "Naranja",
-    flavor: "Cítrico",
-    category: "citrus",
-    price: 3800,
-    image: "naranja.jpg",
-    description: "Aroma fresco y cítrico de naranja para una experiencia vibrante."
-  },
-  {
-    id: 2,
-    name: "Limón",
-    flavor: "Cítrico",
-    category: "citrus",
-    price: 3800,
-    image: "limon.jpg",
-    description: "Aroma de limón, fresco y refrescante para acompañar tu hidratación."
-  },
-  {
-    id: 3,
-    name: "Frutilla",
-    flavor: "Frutal",
-    category: "berries",
-    price: 3800,
-    image: "frutilla.jpg",
-    description: "Aroma dulce y frutal de frutilla."
-  },
-  {
-    id: 4,
-    name: "Uva",
-    flavor: "Frutal",
-    category: "frutal",
-    price: 3800,
-    image: "uva.jpg",
-    description: "Aroma frutal de uva con una sensación dulce y agradable."
-  },
-  {
-    id: 5,
-    name: "Sandía",
-    flavor: "Frutal",
-    category: "frutal",
-    price: 3800,
-    image: "sandia.jpg",
-    description: "Aroma fresco de sandía, ideal para una experiencia de verano."
-  },
-  {
-    id: 6,
-    name: "Arándano",
-    flavor: "Frutos rojos",
-    category: "berries",
-    price: 3800,
-    image: "arandano.jpg",
-    description: "Aroma intenso de arándano con un perfil frutal."
-  },
-  {
-    id: 7,
-    name: "Manzana",
-    flavor: "Frutal",
-    category: "frutal",
-    price: 3800,
-    image: "manzana.jpg",
-    description: "Aroma fresco y frutal de manzana para una experiencia suave y refrescante."
-  },
-  {
-    id: 8,
-    name: "Botella Rulimeri 500 ml + cápsula",
-    flavor: "Combo",
-    category: "bottle",
-    price: 10000,
-    image: "botella-500ml.jpg",
-    description: "Botella reutilizable de 500 ml con una cápsula Rulimeri a elección. El precio se calcula según el aroma elegido."
-  }
-];
-
-/* ---------------- ESTADO ---------------- */
-
-let cart = JSON.parse(localStorage.getItem("rulimeri_cart")) || [];
-let favorites = JSON.parse(localStorage.getItem("rulimeri_favorites")) || [];
-
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
-
-const formatPrice = (value) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0
-  }).format(value);
-
-function saveState() {
-  localStorage.setItem("rulimeri_cart", JSON.stringify(cart));
-  localStorage.setItem("rulimeri_favorites", JSON.stringify(favorites));
+/* ===== RULIMERI: CÁLCULO AUTOMÁTICO DE ENVÍO =====
+   1 unidad = $1.200
+   Cada unidad adicional reduce $200.
+   Mínimo de envío = $200.
+*/
+function calcularCantidadCarritoRulimeri(carrito) {
+    if (!Array.isArray(carrito)) return 0;
+    return carrito.reduce(function(total, item) {
+        var cantidad = Number(
+            item.quantity !== undefined ? item.quantity :
+            item.qty !== undefined ? item.qty : 1
+        );
+        return total + (Number.isFinite(cantidad) && cantidad > 0 ? cantidad : 0);
+    }, 0);
 }
 
-/* ---------------- PRODUCTOS ---------------- */
-
-function renderProducts(list = products) {
-  const grid = $("#productsGrid");
-  const empty = $("#productsEmpty");
-
-  if (!list.length) {
-    grid.innerHTML = "";
-    empty.hidden = false;
-    return;
-  }
-
-  empty.hidden = true;
-
-  grid.innerHTML = list.map(product => {
-    const isFavorite = favorites.includes(product.id);
-
-    return `
-      <article class="product-card">
-        <div class="product-image-wrap">
-          <img src="${product.image}" width="60" alt="Cápsula Rulimeri ${product.name}"
-               onerror="this.src='logo-rulimeri.png'">
-          <button class="favorite-btn ${isFavorite ? "active" : ""}"
-                  data-action="favorite" data-id="${product.id}"
-                  aria-label="${isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}">
-            ${isFavorite ? "♥" : "♡"}
-          </button>
-          <span class="product-badge">${product.flavor}</span>
-        </div>
-
-        <div class="product-info">
-          <h3>${product.name}</h3>
-          <p>${product.description}</p>
-
-          <div class="product-bottom">
-            <strong>${formatPrice(product.price)}</strong>
-            <div class="product-actions">
-              <button class="small-btn" data-action="view" data-id="${product.id}" title="Ver producto">👁</button>
-              <button class="btn btn-primary small" data-action="add" data-id="${product.id}">
-                ${product.id === 8 ? "Elegir combo" : "+ Agregar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </article>
-    `;
-  }).join("");
+function calcularEnvioRulimeri(carrito) {
+    var cantidad = calcularCantidadCarritoRulimeri(carrito);
+    if (cantidad <= 0) return 0;
+    return Math.max(200, 1200 - ((cantidad - 1) * 200));
 }
 
-function filterProducts() {
-  const search = ($("#searchInput").value || "").toLowerCase().trim();
-  const category = $("#categoryFilter").value;
-  const sort = $("#sortProducts").value;
-
-  let list = products.filter(product => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(search) ||
-      product.flavor.toLowerCase().includes(search) ||
-      product.description.toLowerCase().includes(search);
-
-    const matchesCategory = category === "all" || product.category === category;
-
-    return matchesSearch && matchesCategory;
-  });
-
-  if (sort === "price-low") list.sort((a, b) => a.price - b.price);
-  if (sort === "price-high") list.sort((a, b) => b.price - a.price);
-  if (sort === "name") list.sort((a, b) => a.name.localeCompare(b.name));
-
-  renderProducts(list);
+function formatearPrecioRulimeri(valor) {
+    return "$" + Math.round(valor).toLocaleString("es-AR");
 }
 
-/* ---------------- CARRITO ---------------- */
+const products=[
+{id:1,name:'Naranja',category:'capsule',price:3800,image:'naranja.jpg'},
+{id:2,name:'Limón',category:'capsule',price:3800,image:'limon.jpg'},
+{id:3,name:'Frutilla',category:'capsule',price:3800,image:'frutilla.jpg'},
+{id:4,name:'Uva',category:'capsule',price:3800,image:'uva.jpg'},
+{id:5,name:'Sandía',category:'capsule',price:3800,image:'sandia.jpg'},
+{id:6,name:'Arándano',category:'capsule',price:3800,image:'arandano.jpg'},
+{id:7,name:'Manzana',category:'capsule',price:3800,image:'manzana.jpg'},
+{id:8,name:'Botella Rulimeri negra 500 ml',category:'bottle',price:10000,image:'botella-500ml.jpg'}];
+let cart=JSON.parse(localStorage.getItem('rulimeri_cart')||'[]');let favorites=JSON.parse(localStorage.getItem('rulimeri_favorites')||'[]');
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),money=n=>'$'+Number(n).toLocaleString('es-AR');
+function save(){localStorage.setItem('rulimeri_cart',JSON.stringify(cart));localStorage.setItem('rulimeri_favorites',JSON.stringify(favorites))}function toast(t){const n=$('#notification');n.textContent=t;n.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>n.classList.remove('show'),2200)}
+function renderProducts(){let q=($('#searchInput').value||'').toLowerCase(),a=products.filter(p=>p.name.toLowerCase().includes(q));let s=$('#sortSelect').value;if(s==='price-low')a.sort((x,y)=>x.price-y.price);if(s==='price-high')a.sort((x,y)=>y.price-x.price);if(s==='name')a.sort((x,y)=>x.name.localeCompare(y.name));$('#productsGrid').innerHTML=a.map(p=>`<article class="product-card"><button class="favorite ${favorites.includes(p.id)?'active':''}" data-fav="${p.id}">♥</button><div class="product-image"><img src="${p.image}" width="60" alt="${p.name}"></div><div class="product-info"><span class="badge">${p.category==='bottle'?'500 ml':'Cápsula'}</span><h3>${p.name}</h3><p>${p.category==='bottle'?'Botella negra Rulimeri de 500 ml.':'Cápsula olfativa Rulimeri.'}</p><div class="product-bottom"><strong class="price">${money(p.price)}</strong><button class="add-cart" data-add="${p.id}">+</button></div></div></article>`).join('');$$('[data-add]').forEach(b=>b.onclick=()=>openProduct(+b.dataset.add));$$('[data-fav]').forEach(b=>b.onclick=()=>fav(+b.dataset.fav))}
+function fav(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];save();renderProducts();toast('Favoritos actualizados ❤️')}
+function openProduct(id){let p=products.find(x=>x.id===id),m=$('#productModal');if(p.category==='bottle'){let caps=products.filter(x=>x.category==='capsule');$('#modalBody').innerHTML=`<div class="product-modal"><img src="${p.image}" width="60" alt="${p.name}"><div><span class="badge">COMBO</span><h2>Botella negra 500 ml + cápsula</h2><p>Botella $10.000 + cápsula $3.800.</p><div class="input-group"><label>Elegí cápsula</label><select id="capSelect">${caps.map(c=>`<option value="${c.id}">${c.name} — ${money(c.price)}</option>`).join('')}</select></div><div class="combo-price">Total: <strong id="comboTotal">$13.800</strong></div><div class="input-group"><label>Cantidad</label><input id="comboQty" type="number" min="1" value="1"></div><button class="btn btn-primary full" id="addCombo">Agregar combo</button></div></div>`;$('#capSelect').onchange=comboTotal;$('#comboQty').oninput=comboTotal;$('#addCombo').onclick=addCombo}else{$('#modalBody').innerHTML=`<div class="product-modal"><img src="${p.image}" width="60" alt="${p.name}"><div><span class="badge">CÁPSULA</span><h2>${p.name}</h2><div class="combo-price">$3.800</div><div class="input-group"><label>Cantidad</label><input id="qty" type="number" min="1" value="1"></div><button class="btn btn-primary full" id="addOne">Agregar al carrito</button></div></div>`;$('#addOne').onclick=()=>{addToCart(p.id,Math.max(1,+$('#qty').value||1));closeModal()}}m.classList.add('open')}
+function comboTotal(){let q=Math.max(1,+$('#comboQty').value||1);$('#comboTotal').textContent=money(13800*q)}function addCombo(){let cap=products.find(x=>x.id===+$(`#capSelect`).value),key=`combo-8-${cap.id}`,e=cart.find(x=>x.key===key),q=Math.max(1,+$('#comboQty').value||1);if(e)e.quantity+=q;else cart.push({id:8,key,name:`Botella negra 500 ml + ${cap.name}`,image:'botella-500ml.jpg',price:13800,quantity:q});save();renderCart();closeModal();toast('Combo agregado 🧴')}
+function addToCart(id,q=1){let p=products.find(x=>x.id===id),key=`product-${id}`,e=cart.find(x=>x.key===key);if(e)e.quantity+=q;else cart.push({id,key,name:p.name,image:p.image,price:3800,quantity:q});save();renderCart();toast('Producto agregado 🛒')}
+function renderCart(){let b=$('#cartItems');$('#cartCount').textContent=cart.reduce((s,x)=>s+x.quantity,0);b.innerHTML=cart.length?cart.map(x=>`<div class="cart-item"><img src="${x.image}" width="60" height="60" alt="${x.name}"><div class="cart-item-info"><strong>${x.name}</strong><small>${money(x.price)} c/u</small><div class="quantity-controls"><button data-a="dec" data-k="${x.key}">−</button><span>${x.quantity}</span><button data-a="inc" data-k="${x.key}">+</button><button class="remove-item" data-a="del" data-k="${x.key}">🗑</button></div></div><strong>${money(x.price*x.quantity)}</strong></div>`).join(''):'<div class="empty-cart">🛒<p>Tu carrito está vacío.</p></div>';$('#cartTotal').textContent=money(cart.reduce((s,x)=>s+x.price*x.quantity,0));$$('[data-a]').forEach(b=>b.onclick=()=>{let k=b.dataset.k;if(b.dataset.a==='inc')changeQuantity(k,1);if(b.dataset.a==='dec')changeQuantity(k,-1);if(b.dataset.a==='del')removeItem(k)})}
+function changeQuantity(key,amount){let item=cart.find(x=>x.key===key);if(!item)return;item.quantity+=amount;if(item.quantity<=0)cart=cart.filter(x=>x.key!==key);save();renderCart()}function removeItem(key){cart=cart.filter(x=>x.key!==key);save();renderCart();toast('Producto eliminado')}function closeModal(){$('#productModal').classList.remove('open')}
+$('#cartBtn').onclick=()=>$('#cartDrawer').classList.add('open');$('#closeCart').onclick=()=>$('#cartDrawer').classList.remove('open');$('#clearCartBtn').onclick=()=>{cart=[];save();renderCart()};$$('[data-close-modal]').forEach(x=>x.onclick=closeModal);$('#searchInput').oninput=renderProducts;$('#sortSelect').onchange=renderProducts;$('#menuToggle').onclick=()=>$('#mainNav').classList.toggle('open');$$('.nav a').forEach(x=>x.onclick=()=>$('#mainNav').classList.remove('open'));
+$('#checkoutBtn').onclick=()=>{if(!cart.length)return toast('Agregá productos primero');let t=cart.map(x=>`${x.name} x${x.quantity} = ${money(x.price*x.quantity)}`).join('\n'),tot=cart.reduce((s,x)=>s+x.price*x.quantity,0);open(`https://wa.me/?text=${encodeURIComponent('Hola Rulimeri! Quiero hacer este pedido:\n\n'+t+'\n\nTotal: '+money(tot))}`,'_blank')};$('#contactForm').onsubmit=e=>{e.preventDefault();open(`https://wa.me/?text=${encodeURIComponent('Hola Rulimeri! Soy '+$('#contactName').value+'. '+$('#contactMessage').value)}`,'_blank')};$('#backTop').onclick=()=>scrollTo({top:0,behavior:'smooth'});onscroll=()=>$('#backTop').classList.toggle('show',scrollY>500);onload=()=>{setTimeout(()=>$('#loader').classList.add('hidden'),500);renderProducts();renderCart()};
 
-function addToCart(id, quantity = 1, selectedCapsuleId = null) {
-  const product = products.find(p => p.id === id);
-  if (!product) return;
 
-  if (id === 8 && !selectedCapsuleId) {
-    openProductModal(id);
-    return;
-  }
+// ===== RULIMERI: PEDIDO POR GMAIL =====
+const RULIMERI_EMAIL = "rulimeri.srl@gmail.com";
 
-  const cartKey = id === 8 ? `${id}-${selectedCapsuleId}` : `${id}`;
-  const existing = cart.find(item => item.key === cartKey);
-
-  if (existing) {
-    existing.quantity += quantity;
-  } else {
-    cart.push({ id, quantity, key: cartKey, capsuleId: selectedCapsuleId });
-  }
-
-  saveState();
-  renderCart();
-  showToast(`${product.name} agregado al carrito 🛒`);
-}
-
-function changeQuantity(id, amount, key = null) {
-  const item = cart.find(item => key ? item.key === key : item.id === id);
-  if (!item) return;
-
-  item.quantity += amount;
-
-  if (item.quantity <= 0) {
-    cart = cart.filter(item => key ? item.key !== key : item.id !== id);
-  }
-
-  saveState();
-  renderCart();
-}
-
-function removeFromCart(id) {
-  cart = cart.filter(item => item.id !== id);
-  saveState();
-  renderCart();
-  showToast("Producto eliminado del carrito");
-}
-
-function clearCart() {
-  if (!cart.length) return;
-
-  cart = [];
-  saveState();
-  renderCart();
-  showToast("Carrito vacío");
-}
-
-function getCartDetailed() {
-  return cart.map(item => {
-    const product = products.find(p => p.id === item.id);
-    if (!product) return null;
-
-    if (product.id === 8) {
-      const capsule = products.find(p => p.id === item.capsuleId);
-      const finalPrice = product.price + (capsule ? capsule.price : 0);
-      return {
-        ...product,
-        name: `${product.name} (${capsule ? capsule.name : "Aroma a elegir"})`,
-        price: finalPrice,
-        capsuleId: item.capsuleId,
-        quantity: item.quantity,
-        description: `${product.description} Base botella: ${formatPrice(product.price)} + cápsula: ${formatPrice(capsule ? capsule.price : 0)}.`
-      };
-    }
-
-    return { ...product, quantity: item.quantity };
-  }).filter(Boolean);
-}
-
-function getSubtotal() {
-  return getCartDetailed().reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-}
-
-function getShipping() {
-  const subtotal = getSubtotal();
-  if (!subtotal) return 0;
-  return subtotal >= 15000 ? 0 : 1200;
-}
-
-function renderCart() {
-  const items = getCartDetailed();
-  const cartItems = $("#cartItems");
-
-  $("#cartCount").textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-  $("#favoritesCount").textContent = favorites.length;
-
+function enviarPedidoPorGmail() {
+  const items = (typeof cart !== "undefined" && Array.isArray(cart)) ? cart : [];
   if (!items.length) {
-    cartItems.innerHTML = `
-      <div class="empty-cart">
-        <div>🛒</div>
-        <h3>Tu carrito está vacío</h3>
-        <p>Agregá una cápsula Rulimeri para comenzar.</p>
-      </div>
-    `;
-  } else {
-    cartItems.innerHTML = items.map(item => `
-      <div class="cart-item">
-        <img src="${item.image}" width="60" alt="${item.name}" onerror="this.src='logo-rulimeri.png'">
-        <div class="cart-item-info">
-          <h3>${item.name}</h3>
-          <strong>${formatPrice(item.price)}</strong>
-
-          <div class="quantity-controls">
-            <button data-cart-action="decrease" data-id="${item.id}" data-key="${item.key}">−</button>
-            <span>${item.quantity}</span>
-            <button data-cart-action="increase" data-id="${item.id}" data-key="${item.key}">+</button>
-            <button class="remove-item" data-cart-action="remove" data-id="${item.id}" data-key="${item.key}" title="Eliminar">🗑</button>
-          </div>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  const subtotal = getSubtotal();
-  const shipping = getShipping();
-  const total = subtotal + shipping;
-
-  $("#cartSubtotal").textContent = formatPrice(subtotal);
-  $("#cartShipping").textContent = shipping === 0 && subtotal > 0 ? "Gratis" : formatPrice(shipping);
-  $("#cartTotal").textContent = formatPrice(total);
-  $("#checkoutTotal").textContent = formatPrice(total);
-
-  $("#checkoutBtn").disabled = !items.length;
-}
-
-function openCart() {
-  closeAllPanels();
-  $("#cartDrawer").classList.add("open");
-  $("#cartDrawer").setAttribute("aria-hidden", "false");
-}
-
-function openFavorites() {
-  closeAllPanels();
-  renderFavorites();
-  $("#favoritesDrawer").classList.add("open");
-  $("#favoritesDrawer").setAttribute("aria-hidden", "false");
-}
-
-function renderFavorites() {
-  const favoriteProducts = products.filter(product => favorites.includes(product.id));
-  const container = $("#favoritesItems");
-
-  if (!favoriteProducts.length) {
-    container.innerHTML = `
-      <div class="empty-cart">
-        <div>♡</div>
-        <h3>No tenés favoritos</h3>
-        <p>Tocá el corazón de un producto para guardarlo.</p>
-      </div>
-    `;
+    if (typeof showNotification === "function") showNotification("Agregá productos al carrito antes de enviar el pedido.");
+    else alert("Agregá productos al carrito antes de enviar el pedido.");
     return;
   }
 
-  container.innerHTML = favoriteProducts.map(product => `
-    <div class="favorite-item">
-      <img src="${product.image}" width="60" alt="${product.name}" onerror="this.src='logo-rulimeri.png'">
-      <div>
-        <h3>${product.name}</h3>
-        <strong>${formatPrice(product.price)}</strong>
-        <div>
-          <button class="btn btn-primary small" data-action="add" data-id="${product.id}">Agregar</button>
-          <button class="small-btn" data-action="favorite" data-id="${product.id}">♥</button>
-        </div>
-      </div>
-    </div>
-  `).join("");
-}
-
-/* ---------------- FAVORITOS ---------------- */
-
-function toggleFavorite(id) {
-  if (favorites.includes(id)) {
-    favorites = favorites.filter(favId => favId !== id);
-    showToast("Eliminado de favoritos");
-  } else {
-    favorites.push(id);
-    showToast("Agregado a favoritos ❤️");
-  }
-
-  saveState();
-  renderProducts();
-  renderFavorites();
-  $("#favoritesCount").textContent = favorites.length;
-}
-
-/* ---------------- MODAL PRODUCTO ---------------- */
-
-function openProductModal(id) {
-  const product = products.find(p => p.id === id);
-  if (!product) return;
-
-  if (id === 8) {
-    const capsuleOptions = products.filter(p => p.id !== 8);
-    $("#productModalBody").innerHTML = `
-      <div class="product-modal">
-        <img src="${product.image}" width="60" alt="${product.name}" onerror="this.src='logo-rulimeri.png'">
-        <div>
-          <span class="eyebrow">Combo 500 ml</span>
-          <h2>Botella Rulimeri 500 ml + cápsula</h2>
-          <p>${product.description}</p>
-          <p><strong>Botella 500 ml:</strong> ${formatPrice(product.price)}</p>
-          <label>
-            Elegí tu cápsula
-            <select id="bottleCapsuleSelect">
-              ${capsuleOptions.map(c => `<option value="${c.id}">${c.name} — ${formatPrice(c.price)}</option>`).join("")}
-            </select>
-          </label>
-          <div class="modal-price" id="bottleComboPrice">${formatPrice(product.price + capsuleOptions[0].price)}</div>
-          <small>Precio = botella ${formatPrice(product.price)} + cápsula seleccionada.</small>
-          <div class="modal-actions">
-            <label>
-              Cantidad
-              <input id="modalQuantity" type="number" min="1" value="1">
-            </label>
-            <button class="btn btn-primary" id="modalAddBtn">Agregar combo</button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const select = $("#bottleCapsuleSelect");
-    select.addEventListener("change", () => {
-      const capsule = products.find(p => p.id === Number(select.value));
-      $("#bottleComboPrice").textContent = formatPrice(product.price + capsule.price);
-    });
-
-    $("#modalAddBtn").addEventListener("click", () => {
-      const quantity = Math.max(1, Number($("#modalQuantity").value) || 1);
-      addToCart(id, quantity, Number(select.value));
-      closePanel("productModal");
-    });
-  } else {
-    $("#productModalBody").innerHTML = `
-      <div class="product-modal">
-        <img src="${product.image}" width="60" alt="${product.name}" onerror="this.src='logo-rulimeri.png'">
-        <div>
-          <span class="eyebrow">${product.flavor}</span>
-          <h2>Cápsula de ${product.name}</h2>
-          <p>${product.description}</p>
-          <div class="modal-price">${formatPrice(product.price)}</div>
-          <div class="modal-actions">
-            <label>
-              Cantidad
-              <input id="modalQuantity" type="number" min="1" value="1">
-            </label>
-            <button class="btn btn-primary" id="modalAddBtn">Agregar al carrito</button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    $("#modalAddBtn").addEventListener("click", () => {
-      const quantity = Math.max(1, Number($("#modalQuantity").value) || 1);
-      addToCart(id, quantity);
-      closePanel("productModal");
-    });
-  }
-
-  openPanel("productModal");
-}
-
-/* ---------------- CHECKOUT ---------------- */
-
-function openCheckout() {
-  if (!cart.length) {
-    showToast("Agregá productos antes de finalizar la compra");
-    return;
-  }
-
-  closePanel("cartDrawer");
-  $("#checkoutTotal").textContent = formatPrice(getSubtotal() + getShipping());
-  openPanel("checkoutModal");
-}
-
-function submitOrder(event) {
-  event.preventDefault();
-
-  if (!cart.length) {
-    showToast("El carrito está vacío");
-    return;
-  }
-
-  const order = {
-    id: "RUL-" + Date.now(),
-    date: new Date().toLocaleString("es-AR"),
-    customer: {
-      name: $("#customerName").value.trim(),
-      phone: $("#customerPhone").value.trim(),
-      email: $("#customerEmail").value.trim(),
-      address: $("#customerAddress").value.trim(),
-      city: $("#customerCity").value.trim(),
-      zip: $("#customerZip").value.trim()
-    },
-    payment: $("#paymentMethod").value,
-    notes: $("#orderNotes").value.trim(),
-    items: getCartDetailed(),
-    subtotal: getSubtotal(),
-    shipping: getShipping(),
-    total: getSubtotal() + getShipping()
-  };
-
-  const orders = JSON.parse(localStorage.getItem("rulimeri_orders")) || [];
-  orders.push(order);
-  localStorage.setItem("rulimeri_orders", JSON.stringify(orders));
-
-  // Preparar mensaje para WhatsApp. Cambiá el número por el de Rulimeri.
-  const whatsappNumber = "5493870000000";
-  const message = buildWhatsAppMessage(order);
-
-  cart = [];
-  saveState();
-  renderCart();
-  $("#checkoutForm").reset();
-  closePanel("checkoutModal");
-
-  showToast(`¡Pedido ${order.id} creado! 🎉`);
-
-  // Si querés activar WhatsApp, reemplazá el número de arriba por el real.
-  // Se abre en una nueva pestaña.
-  setTimeout(() => {
-    const shouldOpen = confirm("¿Querés enviar el pedido por WhatsApp?");
-    if (shouldOpen) {
-      window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
-    }
-  }, 300);
-}
-
-function buildWhatsAppMessage(order) {
-  const lines = order.items.map(
-    item => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`
-  );
-
-  return `¡Hola Rulimeri! Quiero realizar el pedido ${order.id}.
-
-${lines.join("\n")}
-
-Subtotal: ${formatPrice(order.subtotal)}
-Envío: ${order.shipping === 0 ? "Gratis" : formatPrice(order.shipping)}
-Total: ${formatPrice(order.total)}
-
-Cliente: ${order.customer.name}
-Teléfono: ${order.customer.phone}
-Dirección: ${order.customer.address}, ${order.customer.city}
-Medio de pago: ${order.payment}
-${order.notes ? `Notas: ${order.notes}` : ""}`;
-}
-
-/* ---------------- UI ---------------- */
-
-function openPanel(id) {
-  const panel = document.getElementById(id);
-  if (!panel) return;
-  panel.classList.add("open");
-  panel.setAttribute("aria-hidden", "false");
-  document.body.classList.add("no-scroll");
-}
-
-function closePanel(id) {
-  const panel = document.getElementById(id);
-  if (!panel) return;
-  panel.classList.remove("open");
-  panel.setAttribute("aria-hidden", "true");
-
-  if (!document.querySelector(".modal.open, .drawer.open")) {
-    document.body.classList.remove("no-scroll");
-  }
-}
-
-function closeAllPanels() {
-  $$(".modal.open, .drawer.open").forEach(panel => {
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
+  let total = 0;
+  const lineas = items.map(item => {
+    const cantidad = Number(item.quantity || 1);
+    const subtotal = Number(item.price || 0) * cantidad;
+    total += subtotal;
+    return `- ${item.name} x ${cantidad} = $${subtotal.toLocaleString("es-AR")}`;
   });
-  document.body.classList.remove("no-scroll");
+
+  const asunto = "Pedido / Consulta - Rulimeri";
+  const cuerpo = `Hola Rulimeri, quiero realizar un pedido.
+
+Productos:
+${lineas.join("\n")}
+
+Total: $${total.toLocaleString("es-AR")}
+
+Nombre:
+Teléfono:
+Dirección:
+Mensaje adicional:`;
+
+  const url = "https://mail.google.com/mail/?view=cm&fs=1"
+    + "&to=" + encodeURIComponent(RULIMERI_EMAIL)
+    + "&su=" + encodeURIComponent(asunto)
+    + "&body=" + encodeURIComponent(cuerpo);
+
+  window.open(url, "_blank");
 }
 
-function showToast(message) {
-  const toast = $("#toast");
-  toast.textContent = message;
-  toast.classList.add("show");
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("emailOrderBtn");
+  if (btn) btn.addEventListener("click", enviarPedidoPorGmail);
+});
 
-  clearTimeout(window.toastTimer);
-  window.toastTimer = setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2500);
+
+function actualizarEnvioRulimeri() {
+    var carritoActual = (typeof cart !== "undefined" && Array.isArray(cart)) ? cart : [];
+    var cantidad = calcularCantidadCarritoRulimeri(carritoActual);
+    var envio = calcularEnvioRulimeri(carritoActual);
+
+    var posibles = [
+        document.getElementById("shipping"),
+        document.getElementById("cart-shipping"),
+        document.getElementById("envio"),
+        document.querySelector("[data-shipping]")
+    ];
+
+    posibles.forEach(function(el) {
+        if (el) el.textContent = cantidad > 0 ? formatearPrecioRulimeri(envio) : "$0";
+    });
+
+    return envio;
 }
 
-/* ---------------- EVENTOS ---------------- */
 
-document.addEventListener("click", event => {
-  const actionElement = event.target.closest("[data-action]");
 
-  if (actionElement) {
-    const id = Number(actionElement.dataset.id);
-    const action = actionElement.dataset.action;
-
-    if (action === "add") addToCart(id);
-    if (action === "favorite") toggleFavorite(id);
-    if (action === "view") openProductModal(id);
-  }
-
-  const cartActionElement = event.target.closest("[data-cart-action]");
-
-  if (cartActionElement) {
-    const id = Number(cartActionElement.dataset.id);
-    const action = cartActionElement.dataset.cartAction;
-
-    const key = cartActionElement.dataset.key || null;
-    if (action === "increase") changeQuantity(id, 1, key);
-    if (action === "decrease") changeQuantity(id, -1, key);
-    if (action === "remove") {
-      if (key) { cart = cart.filter(item => item.key !== key); saveState(); renderCart(); showToast("Producto eliminado del carrito"); }
-      else removeFromCart(id);
-    }
-  }
-
-  const closeElement = event.target.closest("[data-close]");
-  if (closeElement) {
-    closePanel(closeElement.dataset.close);
-  }
-});
-
-$("#cartBtn").addEventListener("click", openCart);
-$("#favoritesBtn").addEventListener("click", openFavorites);
-
-$("#clearCartBtn").addEventListener("click", () => {
-  if (confirm("¿Seguro que querés vaciar el carrito?")) clearCart();
-});
-
-$("#checkoutBtn").addEventListener("click", openCheckout);
-
-$("#searchInput").addEventListener("input", filterProducts);
-$("#categoryFilter").addEventListener("change", filterProducts);
-$("#sortProducts").addEventListener("change", filterProducts);
-
-$("#checkoutForm").addEventListener("submit", submitOrder);
-
-$("#contactForm").addEventListener("submit", event => {
-  event.preventDefault();
-  const name = $("#contactName").value.trim();
-  showToast(`¡Gracias ${name}! Recibimos tu consulta 💙`);
-  event.target.reset();
-});
-
-$("#menuToggle").addEventListener("click", () => {
-  $("#mainNav").classList.toggle("open");
-});
-
-$$(".nav a").forEach(link => {
-  link.addEventListener("click", () => $("#mainNav").classList.remove("open"));
-});
-
-$("#backToTop").addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-window.addEventListener("scroll", () => {
-  $("#backToTop").classList.toggle("show", window.scrollY > 450);
-});
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") closeAllPanels();
-});
-
-/* ---------------- INICIO ---------------- */
-
-$("#year").textContent = new Date().getFullYear();
-renderProducts();
-renderCart();
-renderFavorites();
+/* Actualización inicial del envío */
+document.addEventListener('DOMContentLoaded', function(){ actualizarEnvioRulimeri(); });
