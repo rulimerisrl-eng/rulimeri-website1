@@ -2,8 +2,8 @@
    RULIMERI - JAVASCRIPT PRINCIPAL + CHECKOUT
    ========================================================== */
 
-const RULIMERI_WHATSAPP = ""; // Colocá aquí el número de WhatsApp de Rulimeri, con código de país. Ej.: 549387XXXXXXX
-const RULIMERI_EMAIL = "rulimeri.srl@gmail.com";
+const RULIMERI_WHATSAPP = "543865484326"; // Colocá aquí el número de WhatsApp de Rulimeri, con código de país. Ej.: 549387XXXXXXX
+const RULIMERI_EMAIL = "rulimerisrl@mail.com";
 const RULIMERI_MAPS = "https://www.google.com/maps/search/?api=1&query=Dean%20Funes%20326%2C%20Salta%2C%20Argentina";
 
 const products = [
@@ -14,7 +14,8 @@ const products = [
   {id:5,name:'Sandía',category:'capsule',price:3800,image:'sandia.jpg'},
   {id:6,name:'Arándano',category:'capsule',price:3800,image:'arandano.jpg'},
   {id:7,name:'Manzana',category:'capsule',price:3800,image:'manzana.jpg'},
-  {id:8,name:'Botella Rulimeri negra 500 ml',category:'bottle',price:10000,image:'botella-500ml.jpg'}
+  {id:8,name:'Botella Rulimeri negra 500 ml',category:'bottle',price:20000,image:'botella-500ml.jpg'},
+  {id:9,name:'Combo Rulimeri: botella + 2 cápsulas',category:'combo',price:26000,image:'botella-500ml.jpg'}
 ];
 
 let cart = JSON.parse(localStorage.getItem('rulimeri_cart') || '[]');
@@ -48,7 +49,7 @@ function renderProducts(){
   if(s==='price-low')a.sort((x,y)=>x.price-y.price);
   if(s==='price-high')a.sort((x,y)=>y.price-x.price);
   if(s==='name')a.sort((x,y)=>x.name.localeCompare(y.name));
-  $('#productsGrid').innerHTML=a.map(p=>`<article class="product-card"><button class="favorite ${favorites.includes(p.id)?'active':''}" data-fav="${p.id}" aria-label="Favorito">♥</button><div class="product-image"><img src="${p.image}" width="60" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"></div><div class="product-info"><span class="badge">${p.category==='bottle'?'500 ml':'Cápsula'}</span><h3>${p.name}</h3><p>${p.category==='bottle'?'Botella negra Rulimeri de 500 ml.':'Cápsula olfativa Rulimeri.'}</p><div class="product-bottom"><strong class="price">${money(p.price)}</strong><button class="add-cart" data-add="${p.id}">+</button></div></div></article>`).join('');
+  $('#productsGrid').innerHTML=a.map(p=>`<article class="product-card"><button class="favorite ${favorites.includes(p.id)?'active':''}" data-fav="${p.id}" aria-label="Favorito">♥</button><div class="product-image ${p.category==='capsule'?'capsule-image':''}"><img src="${p.image}" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"></div><div class="product-info"><span class="badge">${p.category==='bottle'?'Botella 500 ml':p.category==='combo'?'Combo x2 cápsulas':'Cápsula'}</span><h3>${p.name}</h3><p>${p.category==='bottle'?'Botella negra Rulimeri de 500 ml.':p.category==='combo'?'Botella negra de 500 ml + dos cápsulas a elección.':'Cápsula olfativa Rulimeri.'}</p><div class="product-bottom"><strong class="price">${money(p.price)}</strong><button class="add-cart" data-add="${p.id}">+</button></div></div></article>`).join('');
   $$('[data-add]').forEach(b=>b.onclick=()=>openProduct(Number(b.dataset.add)));
   $$('[data-fav]').forEach(b=>b.onclick=()=>fav(Number(b.dataset.fav)));
 }
@@ -56,21 +57,25 @@ function fav(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[.
 
 function openProduct(id){
   const p=products.find(x=>x.id===id);if(!p)return;
-  if(p.category==='bottle'){
+  if(p.category==='combo'){
     const caps=products.filter(x=>x.category==='capsule');
-    $('#modalBody').innerHTML=`<div class="product-modal"><img src="${p.image}" width="60" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"><div><span class="badge">COMBO</span><h2>Botella negra 500 ml + cápsula</h2><p>Botella $10.000 + cápsula $3.800.</p><div class="input-group"><label>Elegí cápsula</label><select id="capSelect">${caps.map(c=>`<option value="${c.id}">${c.name} — ${money(c.price)}</option>`).join('')}</select></div><div class="combo-price">Total: <strong id="comboTotal">$13.800</strong></div><div class="input-group"><label>Cantidad</label><input id="comboQty" type="number" min="1" value="1"></div><button class="btn btn-primary full" id="addCombo">Agregar combo</button></div></div>`;
-    $('#capSelect').onchange=comboTotal;$('#comboQty').oninput=comboTotal;$('#addCombo').onclick=addCombo;
+    const options=caps.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    $('#modalBody').innerHTML=`<div class="product-modal"><img src="${p.image}" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"><div><span class="badge">COMBO AHORRO</span><h2>Botella + 2 cápsulas</h2><p>Incluye una botella negra de 500 ml y dos cápsulas olfativas a elección.</p><div class="input-group"><label>Elegí la primera cápsula</label><select id="capSelect1">${options}</select></div><div class="input-group"><label>Elegí la segunda cápsula</label><select id="capSelect2">${options}</select></div><div class="combo-price">Total: <strong id="comboTotal">$26.000</strong></div><div class="input-group"><label>Cantidad de combos</label><input id="comboQty" type="number" min="1" value="1"></div><button class="btn btn-primary full" id="addCombo">Agregar combo</button></div></div>`;
+    $('#comboQty').oninput=comboTotal;$('#addCombo').onclick=addCombo;
   }else{
-    $('#modalBody').innerHTML=`<div class="product-modal"><img src="${p.image}" width="60" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"><div><span class="badge">CÁPSULA</span><h2>${p.name}</h2><div class="combo-price">${money(p.price)}</div><div class="input-group"><label>Cantidad</label><input id="qty" type="number" min="1" value="1"></div><button class="btn btn-primary full" id="addOne">Agregar al carrito</button></div></div>`;
+    $('#modalBody').innerHTML=`<div class="product-modal"><img src="${p.image}" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"><div><span class="badge">${p.category==='bottle'?'BOTELLA 500 ML':'CÁPSULA'}</span><h2>${p.name}</h2><p>${p.category==='bottle'?'Botella negra Rulimeri reutilizable de 500 ml.':'Cápsula olfativa Rulimeri.'}</p><div class="combo-price">${money(p.price)}</div><div class="input-group"><label>Cantidad</label><input id="qty" type="number" min="1" value="1"></div><button class="btn btn-primary full" id="addOne">Agregar al carrito</button></div></div>`;
     $('#addOne').onclick=()=>{addToCart(p.id,Math.max(1,Number($('#qty').value)||1));closeModal()};
   }
   $('#productModal').classList.add('open');
 }
-function comboTotal(){const q=Math.max(1,Number($('#comboQty').value)||1);$('#comboTotal').textContent=money(13800*q)}
+function comboTotal(){const q=Math.max(1,Number($('#comboQty').value)||1);$('#comboTotal').textContent=money(26000*q)}
 function addCombo(){
-  const cap=products.find(x=>x.id===Number($('#capSelect').value));if(!cap)return;
-  const key=`combo-8-${cap.id}`,e=cart.find(x=>x.key===key),q=Math.max(1,Number($('#comboQty').value)||1);
-  if(e)e.quantity+=q;else cart.push({id:8,key,name:`Botella negra 500 ml + ${cap.name}`,image:'botella-500ml.jpg',price:13800,quantity:q});
+  const cap1=products.find(x=>x.id===Number($('#capSelect1').value));
+  const cap2=products.find(x=>x.id===Number($('#capSelect2').value));
+  if(!cap1||!cap2)return;
+  const key=`combo-9-${cap1.id}-${cap2.id}`,e=cart.find(x=>x.key===key),q=Math.max(1,Number($('#comboQty').value)||1);
+  const name=`Combo botella + ${cap1.name} + ${cap2.name}`;
+  if(e)e.quantity+=q;else cart.push({id:9,key,name,image:'botella-500ml.jpg',price:26000,quantity:q});
   save();renderCart();closeModal();toast('Combo agregado 🧴');
 }
 function addToCart(id,q=1){
