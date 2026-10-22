@@ -36,3 +36,13 @@
 #checkoutItems{margin-bottom:10px}.checkout-item-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e5eef8;font-size:12px}.checkout-item-line:last-child{border-bottom:0}
 .checkout-submit{font-size:15px}.checkout-form .btn-secondary{border:1px solid #dcecff}
 @media(max-width:600px){.product-image{height:260px}.product-card{padding:15px}.product-info h3{font-size:16px}.product-info p{font-size:13px}.form-row,.delivery-options{grid-template-columns:1fr}.checkout-content{padding:18px}.checkout-title h2{font-size:25px}}
+
+
+/* Imágenes de productos grandes y adaptables a celular y computadora */
+.product-image{height:260px;min-height:220px;background:#fff;overflow:hidden;border-radius:16px 16px 0 0}
+.product-image img{width:100%;height:100%;object-fit:contain;display:block;padding:8px}
+.product-image.capsule-image img{object-fit:cover;padding:0}
+.product-card{overflow:hidden}
+.product-modal>img{width:100%;max-width:380px;max-height:420px;object-fit:contain}
+@media(max-width:600px){.product-image{height:220px;min-height:200px}.product-modal>img{max-height:300px}}
+@media(min-width:900px){.product-image{height:300px}.product-modal>img{max-height:460px}}

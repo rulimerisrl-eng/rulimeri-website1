@@ -2,18 +2,18 @@
    RULIMERI - JAVASCRIPT PRINCIPAL + CHECKOUT
    ========================================================== */
 
-const RULIMERI_WHATSAPP = "543865484326"; // Colocá aquí el número de WhatsApp de Rulimeri, con código de país. Ej.: 549387XXXXXXX
+const RULIMERI_WHATSAPP = "543874158909"; // Colocá aquí el número de WhatsApp de Rulimeri, con código de país. Ej.: 549387XXXXXXX
 const RULIMERI_EMAIL = "rulimerisrl@mail.com";
 const RULIMERI_MAPS = "https://www.google.com/maps/search/?api=1&query=Dean%20Funes%20326%2C%20Salta%2C%20Argentina";
 
 const products = [
   {id:1,name:'Naranja',category:'capsule',price:3800,image:'naranja.jpg'},
   {id:2,name:'Limón',category:'capsule',price:3800,image:'limon.jpg'},
-  {id:3,name:'Frutilla',category:'capsule',price:3800,image:'frutilla.jpg'},
-  {id:4,name:'Uva',category:'capsule',price:3800,image:'uva.jpg'},
-  {id:5,name:'Sandía',category:'capsule',price:3800,image:'sandia.jpg'},
-  {id:6,name:'Arándano',category:'capsule',price:3800,image:'arandano.jpg'},
-  {id:7,name:'Manzana',category:'capsule',price:3800,image:'manzana.jpg'},
+  {id:3,name:'Ananá',category:'capsule',price:3800,image:'anana.jpg'},
+  {id:4,name:'Cola',category:'capsule',price:3800,image:'cola.jpg'},
+  {id:5,name:'Uva',category:'capsule',price:3800,image:'uva.jpg'},
+  {id:6,name:'Durazno',category:'capsule',price:3800,image:'durazno.jpg'},
+  {id:7,name:'Bebida energética',category:'capsule',price:3800,image:'bebida-energetica.jpg'},
   {id:8,name:'Botella Rulimeri negra 500 ml',category:'bottle',price:20000,image:'botella-500ml.jpg'},
   {id:9,name:'Combo Rulimeri: botella + 2 cápsulas',category:'combo',price:26000,image:'botella-500ml.jpg'}
 ];
