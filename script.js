@@ -15,7 +15,7 @@ const products = [
   {id:6,name:'Durazno',category:'capsule',price:3800,image:'durazno.jpg'},
   {id:7,name:'Bebida energética',category:'capsule',price:3800,image:'bebida-energetica.jpg'},
   {id:8,name:'Botella Rulimeri negra 500 ml',category:'bottle',price:20000,image:'botella-500ml.jpg'},
-  {id:9,name:'Combo Rulimeri: botella + 2 cápsulas',category:'combo',price:26000,image:'botella-500ml.jpg'}
+  {id:9,name:'Combo Rulimeri: botella + 2 cápsulas',category:'combo',price:26000,image:'combo-rulimeri.jpg'}
 ];
 
 let cart = JSON.parse(localStorage.getItem('rulimeri_cart') || '[]');
@@ -49,7 +49,7 @@ function renderProducts(){
   if(s==='price-low')a.sort((x,y)=>x.price-y.price);
   if(s==='price-high')a.sort((x,y)=>y.price-x.price);
   if(s==='name')a.sort((x,y)=>x.name.localeCompare(y.name));
-  $('#productsGrid').innerHTML=a.map(p=>`<article class="product-card"><button class="favorite ${favorites.includes(p.id)?'active':''}" data-fav="${p.id}" aria-label="Favorito">♥</button><div class="product-image ${p.category==='capsule'?'capsule-image':''}"><img src="${p.image}" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"></div><div class="product-info"><span class="badge">${p.category==='bottle'?'Botella 500 ml':p.category==='combo'?'Combo x2 cápsulas':'Cápsula'}</span><h3>${p.name}</h3><p>${p.category==='bottle'?'Botella negra Rulimeri de 500 ml.':p.category==='combo'?'Botella negra de 500 ml + dos cápsulas a elección.':'Cápsula olfativa Rulimeri.'}</p><div class="product-bottom"><strong class="price">${money(p.price)}</strong><button class="add-cart" data-add="${p.id}">+</button></div></div></article>`).join('');
+  $('#productsGrid').innerHTML=a.map(p=>`<article class="product-card"><button class="favorite ${favorites.includes(p.id)?'active':''}" data-fav="${p.id}" aria-label="Favorito">♥</button><div class="product-image ${p.category==='capsule'?'capsule-image':''}"><img src="${p.image}" alt="${p.name}" onerror="this.src='logo-rulimeri.png'"></div><div class="product-info"><span class="badge">${p.category==='bottle'?'Botella 500 ml':p.category==='combo'?'🔥 PROMOCIÓN':'Cápsula'}</span><h3>${p.name}</h3><p>${p.category==='bottle'?'Botella negra Rulimeri de 500 ml.':p.category==='combo'?'Botella negra de 500 ml + dos cápsulas a elección.':'Cápsula olfativa Rulimeri.'}</p><div class="product-bottom"><strong class="price">${money(p.price)}</strong><button class="add-cart" data-add="${p.id}">+</button></div></div></article>`).join('');
   $$('[data-add]').forEach(b=>b.onclick=()=>openProduct(Number(b.dataset.add)));
   $$('[data-fav]').forEach(b=>b.onclick=()=>fav(Number(b.dataset.fav)));
 }
@@ -75,7 +75,7 @@ function addCombo(){
   if(!cap1||!cap2)return;
   const key=`combo-9-${cap1.id}-${cap2.id}`,e=cart.find(x=>x.key===key),q=Math.max(1,Number($('#comboQty').value)||1);
   const name=`Combo botella + ${cap1.name} + ${cap2.name}`;
-  if(e)e.quantity+=q;else cart.push({id:9,key,name,image:'botella-500ml.jpg',price:26000,quantity:q});
+  if(e)e.quantity+=q;else cart.push({id:9,key,name,image:'combo-rulimeri.jpg',price:26000,quantity:q});
   save();renderCart();closeModal();toast('Combo agregado 🧴');
 }
 function addToCart(id,q=1){
